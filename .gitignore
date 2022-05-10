@@ -1,0 +1,18 @@
+#Idea
+.idea
+
+#VS
+.vs
+*.sln
+
+#VSCode
+.vscode
+.ignore
+HelloUnreal.code-workspace
+
+# Project
+Binaries
+Build
+DerivedDataCache
+Intermediate
+Saved
