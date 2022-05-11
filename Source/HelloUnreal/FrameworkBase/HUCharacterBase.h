@@ -7,9 +7,9 @@
 #include "HUCharacterBase.generated.h"
 
 class UInputComponent;
-class USkeletalMeshComponent;
+class UHUFPSSkeletalMeshComponent;
 class USceneComponent;
-class UCameraComponent;
+class UHUFPSCameraComponent;
 class UAnimMontage;
 class USoundBase;
 
@@ -20,11 +20,11 @@ class AHUCharacterBase : public ACharacter
 
 	/** Pawn mesh: 1st person view (arms; seen only by self) */
 	UPROPERTY(VisibleDefaultsOnly, Category=Mesh)
-	USkeletalMeshComponent* Mesh1P;
+	UHUFPSSkeletalMeshComponent* Mesh1P;
 
 	/** Gun mesh: 1st person view (seen only by self) */
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
-	USkeletalMeshComponent* FP_Gun;
+	UHUFPSSkeletalMeshComponent* FP_Gun;
 
 	/** Location on gun mesh where projectiles should spawn. */
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
@@ -36,7 +36,7 @@ class AHUCharacterBase : public ACharacter
 
 	/** First person camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	UCameraComponent* FirstPersonCameraComponent;
+	UHUFPSCameraComponent* FirstPersonCameraComponent;
 
 public:
 	AHUCharacterBase();
@@ -79,9 +79,9 @@ protected:
 
 public:
 	/** Returns Mesh1P subobject **/
-	USkeletalMeshComponent* GetMesh1P() const { return Mesh1P; }
+	UHUFPSSkeletalMeshComponent* GetMesh1P() const { return Mesh1P; }
 	/** Returns FirstPersonCameraComponent subobject **/
-	UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
+	UHUFPSCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
 
 };
 
