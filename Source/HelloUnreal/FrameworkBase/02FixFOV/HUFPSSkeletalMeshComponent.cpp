@@ -7,13 +7,10 @@
 
 FMatrix UHUFPSSkeletalMeshComponent::GetRenderMatrix() const
 {
-	FMatrix InverseOldViewProjectionMatrix;
-	FMatrix NewViewProjectionMatrix;
-
-	const FTransform ComponentTransform = GetComponentTransform();
+	const FMatrix ModelMatrix = GetComponentTransform().ToMatrixWithScale();
 
 	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
-	if (PlayerController)
+	if (PlayerController && PlayerController->IsLocalController())
 	{
 		ULocalPlayer* LocalPlayer = Cast<ULocalPlayer>(PlayerController->Player);
 
@@ -31,38 +28,37 @@ FMatrix UHUFPSSkeletalMeshComponent::GetRenderMatrix() const
 			const auto ViewportSize = LocalPlayer->ViewportClient->Viewport->GetSizeXY();
 			const float Width = ViewportSize.X;
 			const float Height = ViewportSize.Y;
-			const float TargetWidth = 1920.0f;
-			const float TargetHeight = 1080.0f;
 			const float NearClippingPlaneDistance = Matrices.NearClippingPlaneDistance;
 
 			FMatrix NewProjectionMatrix;
+			FMatrix NewViewProjectionMatrix;
+			FMatrix InverseOldViewProjectionMatrix;
 
-			const auto MaxFit = DarkMagic::GetMaxFittingResolution(1920.0f, 1080.f, ViewportSize.X, ViewportSize.Y);
+			const auto MaxFit = DarkMagic::GetMaxFittingResolution(1920.0f, 1080.f, Width, Height);
 
 			static_assert(ERHIZBuffer::IsInverted, "Z Buffer not inverted. Need to use FPerspectiveMatrix instead");
 
 			if (MaxFit.AspectCorrection == DarkMagic::ResolutionInformation::EAspectCorrection::PILLAR_BOX)
 			{
-				const float HorPlusFov = DarkMagic::HorFovToHorPlus(DesiredHorizontalFov, 1920.0f, 1080.f, ViewportSize.X, ViewportSize.Y);
+				const float HorPlusFov = DarkMagic::HorFovToHorPlus(DesiredHorizontalFov, 1920.0f, 1080.f, Width, Height);
 				const float DesiredHalfFovRad = HorPlusFov * PI / 360.0f;
 				NewProjectionMatrix = FReversedZPerspectiveMatrix(DesiredHalfFovRad, Width, Height, NearClippingPlaneDistance);
 			}
 			else
 			{
 				const float DesiredHalfFovRad = DesiredHorizontalFov * PI / 360.0f;
-				NewProjectionMatrix = FReversedZPerspectiveMatrix(DesiredHalfFovRad, TargetWidth, TargetHeight, NearClippingPlaneDistance);
+				NewProjectionMatrix = FReversedZPerspectiveMatrix(DesiredHalfFovRad, 1920.0f, 1080.0f, NearClippingPlaneDistance);
 			}
 
 			const FMatrix ViewMatrix = Matrices.ViewMatrix;
 
 			NewViewProjectionMatrix = ViewMatrix * NewProjectionMatrix;
 			InverseOldViewProjectionMatrix = Matrices.InverseViewProjectionMatrix;
+			return ModelMatrix * NewViewProjectionMatrix * InverseOldViewProjectionMatrix;
 		}
-
 	}
 
-	const FMatrix ModelMatrix = ComponentTransform.ToMatrixWithScale();
-	return ModelMatrix * NewViewProjectionMatrix * InverseOldViewProjectionMatrix;
+	return ModelMatrix;
 }
 
 FMatrices UHUFPSSkeletalMeshComponent::GetMatrices(UWorld& World) const
